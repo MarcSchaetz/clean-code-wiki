@@ -24,3 +24,48 @@
 1. The Presenter uses the data inside the ResponseModel. For example to create strings that can be displayed inside a GUI.
 
 ![Step 4](ca-step-4.svg)
+
+## Example in Python
+```python
+from typing import Protocol
+
+
+class ResponseModel:
+    data: str
+
+
+class RequestModel:
+    data: str
+
+
+class OutputBoundary(Protocol):
+    def receive(self, res: ResponseModel) -> None: ...
+
+
+class InputBoundary(Protocol):
+    def invoke(self, req: RequestModel, receiver: OutputBoundary)-> None: ...
+
+
+class Controller:
+    def send_request(self, input: InputBoundary, output:OutputBoundary) -> None:
+        request = RequestModel()
+        input.invoke(request, output)
+
+
+class Presenter(OutputBoundary):
+    def receive(self, res: ResponseModel) -> None:
+        # do something with the data ...
+        pass
+
+
+class Interactor(InputBoundary):
+    def invoke(self, req: RequestModel, receiver: OutputBoundary):
+        res = ResponseModel()
+        receiver.receive(res)
+
+
+uc = Interactor()
+presenter = Presenter()
+controller = Controller()
+controller.send_request(uc, presenter)
+```
